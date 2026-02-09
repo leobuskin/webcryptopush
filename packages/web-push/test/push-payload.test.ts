@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import { buildPushPayload } from '../lib/main.js';
 import { subscriptions } from './fixtures/fixtures.js';
 import { insecureVapid } from './fixtures/vapid.js';

@@ -1,6 +1,6 @@
-import type { PushMessage } from '@block65/webcrypto-web-push';
-import { type FC, useCallback, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { type FC, useCallback, useState } from 'react';
+import type { PushMessage } from 'webcryptopush';
 import { invariant } from './utils.ts';
 
 async function getSubscription(

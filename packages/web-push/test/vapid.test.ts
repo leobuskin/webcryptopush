@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, test, vi } from 'vitest';
+import { test, vi } from 'vitest';
 import { vapidHeaders } from '../lib/vapid.js';
 import { subscriptions } from './fixtures/fixtures.js';
 import { insecureVapid } from './fixtures/vapid.js';

@@ -1,14 +1,11 @@
-import {
-  buildPushPayload,
-  type PushSubscription,
-} from '@block65/webcrypto-web-push';
 import { eq } from 'drizzle-orm';
-import { drizzle, type DrizzleD1Database } from 'drizzle-orm/d1';
+import { type DrizzleD1Database, drizzle } from 'drizzle-orm/d1';
 import { Hono } from 'hono';
 import { env } from 'hono/adapter';
 import { cors } from 'hono/cors';
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
+import { buildPushPayload, type PushSubscription } from 'webcryptopush';
 import { subscriptions } from './schema.js';
 
 const app = new Hono<{

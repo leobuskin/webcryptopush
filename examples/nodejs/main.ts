@@ -1,8 +1,4 @@
 import 'dotenv/config';
-import {
-  buildPushPayload,
-  type PushSubscription,
-} from '@block65/webcrypto-web-push';
 import { serve } from '@hono/node-server';
 import Database from 'better-sqlite3';
 import { eq } from 'drizzle-orm';
@@ -13,6 +9,7 @@ import { env } from 'hono/adapter';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
+import { buildPushPayload, type PushSubscription } from 'webcryptopush';
 import { subscriptions } from './schema.js';
 
 const app = new Hono();

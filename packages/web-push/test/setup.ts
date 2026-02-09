@@ -45,9 +45,8 @@ vi.mock(import('../lib/local-keys.js'), (importOriginal) => ({
 }));
 
 beforeEach(() => {
-  // tell vitest we use mocked time
   vi.useFakeTimers();
-  // vi.setSystemTime(Date.UTC(2000, 1, 1, 13, 0, 0, 0));
+  vi.setSystemTime(Date.UTC(2000, 1, 1, 13, 0, 0, 0));
 });
 
 afterEach(() => {

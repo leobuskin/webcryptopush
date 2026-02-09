@@ -8,3 +8,4 @@ coverage
 
 sqlite.db
 **/migrations/meta/
+worker-configuration.d.ts

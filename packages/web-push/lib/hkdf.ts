@@ -1,6 +1,6 @@
 import { crypto } from './isomorphic-crypto.js';
 
-function createHMAC(data: ArrayBuffer) {
+function createHMAC(data: BufferSource) {
   if (data.byteLength === 0) {
     return {
       hash: () => Promise.resolve(new ArrayBuffer(32)),
@@ -19,24 +19,23 @@ function createHMAC(data: ArrayBuffer) {
   );
 
   return {
-    hash: async (input: ArrayBuffer) => {
+    hash: async (input: BufferSource) => {
       const k = await keyPromise;
       return crypto.subtle.sign('HMAC', k, input);
     },
   };
 }
 
-export async function hkdf(salt: ArrayBuffer, ikm: ArrayBuffer) {
+export async function hkdf(salt: BufferSource, ikm: BufferSource) {
   const prkhPromise = createHMAC(salt)
     .hash(ikm)
     .then((prk) => createHMAC(prk));
 
   return {
-    extract: async (info: ArrayBuffer, len: number) => {
-      const input = new Uint8Array([
-        ...new Uint8Array(info),
-        ...new Uint8Array([1]),
-      ]);
+    extract: async (info: BufferSource, len: number) => {
+      const infoBytes =
+        info instanceof Uint8Array ? info : new Uint8Array(info as ArrayBuffer);
+      const input = new Uint8Array([...infoBytes, 1]);
       const prkh = await prkhPromise;
       const hash = await prkh.hash(input);
       // if (hash.byteLength < len) {

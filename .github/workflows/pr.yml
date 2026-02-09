@@ -2,7 +2,7 @@ name: Unit Tests (PR)
 
 on:
   pull_request:
-    branches: ["canary", "master"]
+    branches: ["main"]
 
 jobs:
   test:

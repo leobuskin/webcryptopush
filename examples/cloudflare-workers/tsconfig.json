@@ -2,8 +2,10 @@
   "extends": "@tsconfig/node22",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["@cloudflare/workers-types"]
+    "lib": ["es2023"],
+    "types": ["./worker-configuration.d.ts"]
   },
+  "include": ["."],
   "references": [
     {
       "path": "../../packages/web-push"

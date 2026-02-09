@@ -1,20 +1,14 @@
-# @block65/webcrypto-web-push
+# webcryptopush
 
 Send notifications using Web Push Protocol and Web Crypto APIs (works with
 NodeJS, Cloudflare Workers, Bun and Deno)
 
+Fork of [@block65/webcrypto-web-push](https://github.com/block65/webcrypto-web-push) with a critical encryption bug fix and updated dependencies.
+
 ## Installation
 
-Using yarn:
-
 ```
-yarn add @block65/webcrypto-web-push
-```
-
-Using pnpm:
-
-```
-pnpm add @block65/webcrypto-web-push
+npm install webcryptopush
 ```
 
 ## Configuration
@@ -34,7 +28,7 @@ import {
   type PushSubscription,
   type PushMessage,
   type VapidKeys,
-} from '@block65/webcrypto-web-push';
+} from 'webcryptopush';
 
 // `env` could be `process.env` or `import.meta.env` depending
 // on your platform or build tooling

@@ -14,4 +14,4 @@ dist: node_modules tsconfig.json
 
 .PHONY: smoketest
 smoketest: dist
-	pnpm exec node -e "import('@block65/webcrypto-web-push').then(() => console.log('smoketest ok')).catch(console.error)"
+	pnpm exec node -e "import('webcryptopush').then(() => console.log('smoketest ok')).catch(console.error)"

@@ -1,6 +1,6 @@
-import { crypto } from './isomorphic-crypto.js';
-import { objectToBase64UrlSafe, toBase64UrlSafe } from './base64.js';
 import { stringToUint8Array } from 'uint8array-extras';
+import { objectToBase64UrlSafe, toBase64UrlSafe } from './base64.js';
+import { crypto } from './isomorphic-crypto.js';
 export type JwtAlgorithm =
   | 'ES256'
   | 'ES384'
@@ -12,30 +12,7 @@ export type JwtAlgorithm =
   | 'RS384'
   | 'RS512';
 
-interface Algorithm {
-  name: string;
-}
-
-type NamedCurve = string;
-interface EcKeyImportParams extends Algorithm {
-  namedCurve: NamedCurve;
-}
-
-type AlgorithmIdentifier = Algorithm | string;
-type HashAlgorithmIdentifier = AlgorithmIdentifier;
-interface RsaHashedImportParams extends Algorithm {
-  hash: HashAlgorithmIdentifier;
-}
-
-interface HmacImportParams extends Algorithm {
-  hash: HashAlgorithmIdentifier;
-  length?: number;
-}
-
-export const algorithms: Record<
-  JwtAlgorithm,
-  RsaHashedImportParams | EcKeyImportParams | HmacImportParams
-> = {
+export const algorithms: Record<JwtAlgorithm, AlgorithmIdentifier> = {
   ES256: { name: 'ECDSA', namedCurve: 'P-256', hash: { name: 'SHA-256' } },
   ES384: { name: 'ECDSA', namedCurve: 'P-384', hash: { name: 'SHA-384' } },
   ES512: { name: 'ECDSA', namedCurve: 'P-521', hash: { name: 'SHA-512' } },

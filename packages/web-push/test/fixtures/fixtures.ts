@@ -11,14 +11,4 @@ export const subscriptions = {
       auth: 'ynfeyAwBSXODSCaeRNQZiw',
     },
   },
-  edge: {
-    endpoint:
-      'https://wns2-sg2p.notify.windows.com/w/?token=BQYAAAALwNoB%2fBFE0R6H%2bayc5WRfMVkJlB3mHXSmsCTKWeZZM%2faOvneI8DaE%2fQeCC6uE17dj%2bPNz9drmi5bEvrNRTs8hzCS2abTpc4lfS9XbebI8lqe%2bXcPerho8q5SnWcTk4GURFakuZUYI6e0xMnTG%2bpvFxFatlhq4CELEEyo9%2fAP%2fHMx8tPCSXsh3sSFDtx6MkDnMHmR%2fUvcCrnLbXCDiseZ40bQI6a5tRmOM0izm0Gfc%2foKWmce8JUk2TRtm%2fecPR1F0X%2bVj4JQsDAR7Kx56HUCONLNMzuVm%2b9O6Yp1bLUfnp1QJyVOVyyj6DQfG%2bOOsikh%2bd2foJpWHggpFenW3NiT3',
-    expirationTime: null,
-    keys: {
-      p256dh:
-        'BDPQRxcMhoXtPqJvQ9Kp-FGsQexasWXvh0RTE15Y0qbxKLFZ6eG3U90RJQFkb_SdAB_YzbIm7hcvzn1yAzNZbxs',
-      auth: 'XGCMxdgIGIp7SNs3kb4x7g',
-    },
-  },
 } satisfies Record<string, PushSubscription>;

@@ -1,9 +1,9 @@
 import { base64ToUint8Array } from 'uint8array-extras';
+import { toBase64UrlSafe } from './base64.js';
 import { crypto } from './isomorphic-crypto.js';
+import { sign } from './jwt.js';
 import type { PushSubscription } from './types.js';
 import { invariant } from './utils.js';
-import { toBase64UrlSafe } from './base64.js';
-import { sign } from './jwt.js';
 
 // undefined as its likely they are coming from env vars
 // and this just makes DX nicer to check

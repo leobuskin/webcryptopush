@@ -1,8 +1,8 @@
-import { stringToUint8Array, uint8ArrayToBase64 } from 'uint8array-extras';
+import { stringToUint8Array } from 'uint8array-extras';
+import { toBase64UrlSafe } from './base64.js';
 import { encryptNotification } from './encrypt.js';
 import type { PushMessage, PushSubscription } from './types.js';
-import { vapidHeaders, type VapidKeys } from './vapid.js';
-import { toBase64UrlSafe } from './base64.js';
+import { type VapidKeys, vapidHeaders } from './vapid.js';
 
 export async function buildPushPayload(
   message: PushMessage,

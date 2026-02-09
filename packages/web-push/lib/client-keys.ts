@@ -1,4 +1,4 @@
-import { base64ToUint8Array, stringToUint8Array } from 'uint8array-extras';
+import { base64ToUint8Array } from 'uint8array-extras';
 import { toBase64UrlSafe } from './base64.js';
 import { crypto } from './isomorphic-crypto.js';
 import type { PushSubscription } from './types.js';
@@ -26,6 +26,6 @@ export async function deriveClientKeys(sub: PushSubscription) {
       true,
       [],
     ),
-    authSecretBytes: stringToUint8Array(sub.keys.auth),
+    authSecretBytes: base64ToUint8Array(sub.keys.auth),
   };
 }

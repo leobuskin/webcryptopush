@@ -1,16 +1,16 @@
-self.addEventListener('push', async (event) => {
-  // Keep the service worker alive until the notification is shown.
-  event.waitUntil(
-    self.registration.pushManager.getSubscription().then((subscription) => {
-      if (!subscription) {
-        throw new Error('No subscription found.');
-      }
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 
-      self.registration.showNotification('Web Push', {
-        // event.data?.json()
-        body: event.data?.text() || '<empty>',
-        requireInteraction: false, // can dismiss itself automatically
-      });
+declare const self: ServiceWorkerGlobalScope;
+
+// Required by vite-plugin-pwa injectManifest strategy
+cleanupOutdatedCaches();
+precacheAndRoute(self.__WB_MANIFEST);
+
+self.addEventListener('push', (event) => {
+  event.waitUntil(
+    self.registration.showNotification('Web Push', {
+      body: event.data?.text() || '<empty>',
+      requireInteraction: false,
     }),
   );
 });
