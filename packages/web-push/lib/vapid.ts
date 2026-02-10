@@ -5,12 +5,10 @@ import { sign } from './jwt.js';
 import type { PushSubscription } from './types.js';
 import { invariant } from './utils.js';
 
-// undefined as its likely they are coming from env vars
-// and this just makes DX nicer to check
 export type VapidKeys = {
-  subject: string | undefined;
-  publicKey: string | undefined;
-  privateKey: string | undefined;
+  subject: string;
+  publicKey: string;
+  privateKey: string;
 };
 
 export async function vapidHeaders(
@@ -22,6 +20,11 @@ export async function vapidHeaders(
   invariant(vapid.publicKey, 'Vapid public key is empty');
 
   const vapidPublicKeyBytes = base64ToUint8Array(vapid.publicKey);
+
+  invariant(
+    vapidPublicKeyBytes.byteLength === 65,
+    `Invalid VAPID public key: expected 65 bytes (uncompressed P-256 point), got ${vapidPublicKeyBytes.byteLength}`,
+  );
 
   const publicKey = await crypto.subtle.importKey(
     'jwk',
@@ -47,9 +50,6 @@ export async function vapidHeaders(
       sub: vapid.subject,
     },
     publicKey,
-    {
-      algorithm: 'ES256',
-    },
   );
 
   return {
@@ -57,6 +57,5 @@ export async function vapidHeaders(
       authorization: `WebPush ${jwt}`,
       'crypto-key': `p256ecdsa=${vapid.publicKey}`,
     },
-    // publicJwk,
   };
 }
