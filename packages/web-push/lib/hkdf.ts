@@ -1,20 +1,16 @@
 import { crypto } from './isomorphic-crypto.js';
 
 function createHMAC(data: BufferSource) {
-  if (data.byteLength === 0) {
-    return {
-      hash: () => Promise.resolve(new ArrayBuffer(32)),
-    };
-  }
+  const keyData = data.byteLength === 0 ? new Uint8Array(32) : data;
 
   const keyPromise = crypto.subtle.importKey(
     'raw',
-    data,
+    keyData,
     {
       name: 'HMAC',
       hash: 'SHA-256',
     },
-    true,
+    false,
     ['sign'],
   );
 
@@ -32,17 +28,14 @@ export async function hkdf(salt: BufferSource, ikm: BufferSource) {
     .then((prk) => createHMAC(prk));
 
   return {
-    extract: async (info: BufferSource, len: number) => {
+    expand: async (info: BufferSource, len: number) => {
       const infoBytes =
         info instanceof Uint8Array ? info : new Uint8Array(info as ArrayBuffer);
-      const input = new Uint8Array([...infoBytes, 1]);
+      const input = new Uint8Array(infoBytes.length + 1);
+      input.set(infoBytes);
+      input[infoBytes.length] = 1;
       const prkh = await prkhPromise;
       const hash = await prkh.hash(input);
-      // if (hash.byteLength < len) {
-      //   throw new Error(
-      //     `Unexpected hash length ${hash.byteLength} is less than ${len}`,
-      //   );
-      // }
       return hash.slice(0, len);
     },
   };

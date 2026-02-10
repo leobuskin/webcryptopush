@@ -9,5 +9,9 @@ export function ecJwkToBytes(jwk: JsonWebKey) {
   const yBytes = base64ToUint8Array(jwk.y);
 
   // ANSI X9.62 point encoding - 0x04 for uncompressed
-  return new Uint8Array([0x04, ...xBytes, ...yBytes]);
+  const result = new Uint8Array(1 + xBytes.length + yBytes.length);
+  result[0] = 0x04;
+  result.set(xBytes, 1);
+  result.set(yBytes, 1 + xBytes.length);
+  return result;
 }

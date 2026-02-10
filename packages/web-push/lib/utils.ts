@@ -1,17 +1,3 @@
-export function flattenUint8Array(arrays: Uint8Array[]) {
-  const flatNumberArray = arrays.reduce((accum, arr) => {
-    accum.push(...arr);
-    return accum;
-  }, [] as number[]);
-
-  return new Uint8Array(flatNumberArray);
-}
-
-export function be16(val: number) {
-  // present an 8bit value as a Big Endian 16bit value
-  return ((val & 0xff) << 8) | ((val >> 8) & 0xff);
-}
-
 export function arrayChunk(arr: Uint8Array, chunkSize: number): Uint8Array[] {
   const chunks: Uint8Array[] = [];
   const arrayLength = arr.length;

@@ -1,12 +1,13 @@
+import { concatUint8Arrays } from 'uint8array-extras';
 import { deriveClientKeys } from './client-keys.js';
 import { hkdf } from './hkdf.js';
-import { createInfo, createInfo2 } from './info.js';
+import { createAuthInfo, createInfo } from './info.js';
 import { crypto } from './isomorphic-crypto.js';
 import { ecJwkToBytes } from './jwk-to-bytes.js';
 import { generateLocalKeys } from './local-keys.js';
 import { getSalt } from './salt.js';
 import type { PushSubscription } from './types.js';
-import { arrayChunk, be16, flattenUint8Array, generateNonce } from './utils.js';
+import { arrayChunk, generateNonce, invariant } from './utils.js';
 
 export interface EncryptedNotification {
   ciphertext: Uint8Array;
@@ -14,13 +15,21 @@ export interface EncryptedNotification {
   localPublicKeyBytes: Uint8Array;
 }
 
+// 4096 (push service minimum) - 2 (padding prefix) - 16 (AES-GCM tag)
+const MAX_PLAINTEXT_SIZE = 4078;
+
 // See https://developer.chrome.com/blog/web-push-encryption/
 export async function encryptNotification(
   subscription: PushSubscription,
   plaintext: Uint8Array,
 ): Promise<EncryptedNotification> {
+  invariant(
+    plaintext.byteLength <= MAX_PLAINTEXT_SIZE,
+    `Payload too large: ${plaintext.byteLength} bytes exceeds the ${MAX_PLAINTEXT_SIZE} byte limit`,
+  );
+
   const clientKeys = await deriveClientKeys(subscription);
-  const salt = await getSalt();
+  const salt = getSalt();
 
   // Local ephemeral keys
   const localKeys = await generateLocalKeys();
@@ -29,7 +38,6 @@ export async function encryptNotification(
   const sharedSecret = await crypto.subtle.deriveBits(
     {
       name: 'ECDH',
-      // namedCurve: 'P-256',
       public: clientKeys.publicKey,
     },
     localKeys.privateKey,
@@ -47,15 +55,17 @@ export async function encryptNotification(
     localPublicKeyBytes,
     'nonce',
   );
-  const keyInfo = createInfo2('auth');
+  const authInfo = createAuthInfo();
 
   // Encrypt
   const ikmHkdf = await hkdf(clientKeys.authSecretBytes, sharedSecret);
-  const ikm = await ikmHkdf.extract(keyInfo, 32);
+  const ikm = await ikmHkdf.expand(authInfo, 32);
 
   const messageHkdf = await hkdf(salt, ikm);
-  const cekBytes = await messageHkdf.extract(cekInfo, 16);
-  const nonceBytes = await messageHkdf.extract(nonceInfo, 12);
+  const [cekBytes, nonceBytes] = await Promise.all([
+    messageHkdf.expand(cekInfo, 16),
+    messageHkdf.expand(nonceInfo, 12),
+  ]);
 
   const cekCryptoKey = await crypto.subtle.importKey(
     'raw',
@@ -70,12 +80,9 @@ export async function encryptNotification(
 
   const cipherChunks = await Promise.all(
     arrayChunk(plaintext, 4095).map(async (chunk, idx) => {
-      const padSize = 0;
-      const x = new Uint16Array([be16(padSize)]);
-      const padded = new Uint8Array([
-        ...new Uint8Array(x.buffer, x.byteOffset, x.byteLength),
-        ...chunk,
-      ]);
+      // 2-byte big-endian padding length (always 0) followed by the chunk
+      const padded = new Uint8Array(2 + chunk.length);
+      padded.set(chunk, 2);
 
       const encrypted = await crypto.subtle.encrypt(
         {
@@ -91,7 +98,7 @@ export async function encryptNotification(
   );
 
   return {
-    ciphertext: flattenUint8Array(cipherChunks),
+    ciphertext: concatUint8Arrays(cipherChunks),
     salt,
     localPublicKeyBytes,
   };

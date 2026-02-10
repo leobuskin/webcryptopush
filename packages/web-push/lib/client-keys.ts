@@ -2,9 +2,22 @@ import { base64ToUint8Array } from 'uint8array-extras';
 import { toBase64UrlSafe } from './base64.js';
 import { crypto } from './isomorphic-crypto.js';
 import type { PushSubscription } from './types.js';
+import { invariant } from './utils.js';
 
 export async function deriveClientKeys(sub: PushSubscription) {
   const bytes = base64ToUint8Array(sub.keys.p256dh);
+
+  invariant(
+    bytes.byteLength === 65,
+    `Invalid p256dh key: expected 65 bytes (uncompressed P-256 point), got ${bytes.byteLength}`,
+  );
+
+  const authSecretBytes = base64ToUint8Array(sub.keys.auth);
+
+  invariant(
+    authSecretBytes.byteLength === 16,
+    `Invalid auth secret: expected 16 bytes, got ${authSecretBytes.byteLength}`,
+  );
 
   const publicJwk = {
     kty: 'EC',
@@ -26,6 +39,6 @@ export async function deriveClientKeys(sub: PushSubscription) {
       true,
       [],
     ),
-    authSecretBytes: base64ToUint8Array(sub.keys.auth),
+    authSecretBytes,
   };
 }
