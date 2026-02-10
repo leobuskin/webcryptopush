@@ -1,12 +1,11 @@
 import { base64ToUint8Array } from 'uint8array-extras';
 import { afterEach, beforeEach, vi } from 'vitest';
 
-vi.mock(import('../lib/salt.js'), async (importOriginal) => ({
-  ...importOriginal,
-  getSalt: async () => base64ToUint8Array('4CQCKEyyOT_LysC17rsMXQ'),
+vi.mock(import('../lib/salt.js'), () => ({
+  getSalt: () => base64ToUint8Array('4CQCKEyyOT_LysC17rsMXQ'),
 }));
 
-vi.mock(import('../lib/local-keys.js'), (importOriginal) => ({
+vi.mock(import('../lib/local-keys.js'), () => ({
   generateLocalKeys: async () => {
     const insecurePublicJwk = {
       crv: 'P-256',
@@ -23,22 +22,13 @@ vi.mock(import('../lib/local-keys.js'), (importOriginal) => ({
     } satisfies JsonWebKey;
 
     return {
-      ...importOriginal,
       publicJwk: insecurePublicJwk,
-      privateJwk: insecurePrivateJwk,
       privateKey: await crypto.subtle.importKey(
         'jwk',
         insecurePrivateJwk,
         { name: 'ECDH', namedCurve: 'P-256' },
         true,
         ['deriveBits'],
-      ),
-      publicKey: await crypto.subtle.importKey(
-        'jwk',
-        insecurePublicJwk,
-        { name: 'ECDH', namedCurve: 'P-256' },
-        true,
-        [],
       ),
     };
   },
