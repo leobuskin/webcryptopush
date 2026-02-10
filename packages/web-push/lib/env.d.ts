@@ -115,14 +115,3 @@ declare class URL {
   readonly pathname: string;
   readonly href: string;
 }
-
-// Allow dynamic import of node:crypto without type errors
-declare module 'node:crypto' {
-  const webcrypto: {
-    subtle: SubtleCrypto;
-    getRandomValues<T extends ArrayBufferView | null>(array: T): T;
-    CryptoKey: typeof CryptoKey;
-  };
-  const subtle: SubtleCrypto;
-  function getRandomValues<T extends ArrayBufferView | null>(array: T): T;
-}
