@@ -1,15 +1,10 @@
-type JsonPrimitive = string | number | boolean | null;
-type JsonArray = JsonValue[];
-type JsonObject = { [key: string]: JsonValue };
-type JsonValue = JsonPrimitive | JsonObject | JsonArray;
-
 type RequireAtLeastOne<T> = {
   [K in keyof T]-?: Required<Pick<T, K>> &
     Partial<Pick<T, Exclude<keyof T, K>>>;
 }[keyof T];
 
-export type PushMessage<T extends JsonValue = JsonValue> = {
-  data: T;
+export type PushMessage = {
+  data: string;
 
   options?: RequireAtLeastOne<{
     // TTL (or time to live) is an integer specifying the number of seconds
@@ -26,7 +21,7 @@ export type PushMessage<T extends JsonValue = JsonValue> = {
     // user. This can be used by the push service to help conserve the battery
     // life of a user's device by only waking up for important messages when
     // battery is low.
-    urgency?: 'low' | 'normal' | 'high';
+    urgency?: 'very-low' | 'low' | 'normal' | 'high';
   }>;
 };
 
@@ -40,3 +35,9 @@ export type PushSubscription = {
     p256dh: string; // key
   };
 };
+
+export interface PushRequestInit {
+  headers: Record<string, string>;
+  method: 'POST';
+  body: Uint8Array;
+}

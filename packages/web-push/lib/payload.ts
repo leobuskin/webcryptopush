@@ -1,24 +1,19 @@
 import { stringToUint8Array } from 'uint8array-extras';
 import { toBase64UrlSafe } from './base64.js';
 import { encryptNotification } from './encrypt.js';
-import type { PushMessage, PushSubscription } from './types.js';
+import type { PushMessage, PushRequestInit, PushSubscription } from './types.js';
 import { type VapidKeys, vapidHeaders } from './vapid.js';
 
 export async function buildPushPayload(
   message: PushMessage,
   subscription: PushSubscription,
   vapid: VapidKeys,
-) {
+): Promise<PushRequestInit> {
   const { headers } = await vapidHeaders(subscription, vapid);
 
   const encrypted = await encryptNotification(
     subscription,
-    stringToUint8Array(
-      // if its a primitive, convert to string, otherwise stringify
-      typeof message.data === 'string' || typeof message.data === 'number'
-        ? message.data.toString()
-        : JSON.stringify(message.data),
-    ),
+    stringToUint8Array(message.data),
   );
 
   return {
@@ -29,7 +24,7 @@ export async function buildPushPayload(
 
       encryption: `salt=${toBase64UrlSafe(encrypted.salt)}`,
 
-      ttl: (message.options?.ttl || 60).toString(),
+      ttl: (message.options?.ttl ?? 60).toString(),
       ...(message.options?.urgency && {
         urgency: message.options.urgency,
       }),
@@ -41,7 +36,7 @@ export async function buildPushPayload(
       'content-length': encrypted.ciphertext.byteLength.toString(),
       'content-type': 'application/octet-stream',
     },
-    method: 'post',
+    method: 'POST',
     body: encrypted.ciphertext,
   };
 }

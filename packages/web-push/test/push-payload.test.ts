@@ -21,3 +21,32 @@ test('buildPushPayload', async () => {
   expect(headers).toMatchSnapshot();
   expect(authorization.match(/^(WebPush \w+\.\w+?\.)/)).toMatchSnapshot();
 });
+
+test('buildPushPayload with ttl=0', async () => {
+  const result = await buildPushPayload(
+    { data: 'test', options: { ttl: 0 } },
+    subscriptions.chrome,
+    insecureVapid,
+  );
+  expect(result.headers.ttl).toBe('0');
+});
+
+test('buildPushPayload with JSON data', async () => {
+  const result = await buildPushPayload(
+    { data: JSON.stringify({ key: 'value' }), options: { ttl: 60 } },
+    subscriptions.chrome,
+    insecureVapid,
+  );
+  expect(result.method).toBe('POST');
+  expect(result.body).toBeInstanceOf(Uint8Array);
+  expect(result.headers['content-encoding']).toBe('aesgcm');
+});
+
+test('buildPushPayload with urgency', async () => {
+  const result = await buildPushPayload(
+    { data: 'test', options: { urgency: 'very-low' } },
+    subscriptions.chrome,
+    insecureVapid,
+  );
+  expect(result.headers.urgency).toBe('very-low');
+});

@@ -41,7 +41,7 @@ Uint8Array [
 ]
 `;
 
-exports[`buildPushPayload 2`] = `"post"`;
+exports[`buildPushPayload 2`] = `"POST"`;
 
 exports[`buildPushPayload 3`] = `
 {
