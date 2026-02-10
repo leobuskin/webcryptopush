@@ -27,3 +27,5 @@ jobs:
       - run: make test
 
       - run: pnpm --filter webcryptopush publish --provenance --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
