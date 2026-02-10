@@ -1,5 +1,4 @@
-import { base64ToUint8Array } from 'uint8array-extras';
-import { toBase64UrlSafe } from './base64.js';
+import { base64UrlDecode, base64UrlEncode } from './encoding.js';
 import { crypto } from './isomorphic-crypto.js';
 import { sign } from './jwt.js';
 import type { PushSubscription } from './types.js';
@@ -15,24 +14,27 @@ export async function vapidHeaders(
   subscription: PushSubscription,
   vapid: VapidKeys,
 ) {
-  invariant(vapid.subject, 'Vapid subject is empty');
+  invariant(
+    vapid.subject.startsWith('mailto:') || vapid.subject.startsWith('https://'),
+    'Vapid subject must be a mailto: or https:// URI',
+  );
   invariant(vapid.privateKey, 'Vapid private key is empty');
   invariant(vapid.publicKey, 'Vapid public key is empty');
 
-  const vapidPublicKeyBytes = base64ToUint8Array(vapid.publicKey);
+  const vapidPublicKeyBytes = base64UrlDecode(vapid.publicKey);
 
   invariant(
     vapidPublicKeyBytes.byteLength === 65,
     `Invalid VAPID public key: expected 65 bytes (uncompressed P-256 point), got ${vapidPublicKeyBytes.byteLength}`,
   );
 
-  const publicKey = await crypto.subtle.importKey(
+  const signingKey = await crypto.subtle.importKey(
     'jwk',
     {
       kty: 'EC',
       crv: 'P-256',
-      x: toBase64UrlSafe(vapidPublicKeyBytes.slice(1, 33)),
-      y: toBase64UrlSafe(vapidPublicKeyBytes.slice(33, 65)),
+      x: base64UrlEncode(vapidPublicKeyBytes.slice(1, 33)),
+      y: base64UrlEncode(vapidPublicKeyBytes.slice(33, 65)),
       d: vapid.privateKey,
     },
     {
@@ -49,13 +51,11 @@ export async function vapidHeaders(
       exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
       sub: vapid.subject,
     },
-    publicKey,
+    signingKey,
   );
 
   return {
-    headers: {
-      authorization: `WebPush ${jwt}`,
-      'crypto-key': `p256ecdsa=${vapid.publicKey}`,
-    },
+    authorization: `WebPush ${jwt}`,
+    'crypto-key': `p256ecdsa=${vapid.publicKey}`,
   };
 }

@@ -1,5 +1,4 @@
-import { stringToUint8Array } from 'uint8array-extras';
-import { toBase64UrlSafe } from './base64.js';
+import { base64UrlEncode, utf8Encode } from './encoding.js';
 import { encryptNotification } from './encrypt.js';
 import type { PushMessage, PushRequestInit, PushSubscription } from './types.js';
 import { type VapidKeys, vapidHeaders } from './vapid.js';
@@ -9,22 +8,22 @@ export async function buildPushPayload(
   subscription: PushSubscription,
   vapid: VapidKeys,
 ): Promise<PushRequestInit> {
-  const { headers } = await vapidHeaders(subscription, vapid);
+  const vapidHdrs = await vapidHeaders(subscription, vapid);
 
   const encrypted = await encryptNotification(
     subscription,
-    stringToUint8Array(message.data),
+    utf8Encode(message.data),
   );
 
   return {
     headers: {
-      ...headers,
+      ...vapidHdrs,
 
-      'crypto-key': `dh=${toBase64UrlSafe(encrypted.localPublicKeyBytes)};${headers['crypto-key']}`,
+      'crypto-key': `dh=${base64UrlEncode(encrypted.localPublicKeyBytes)};${vapidHdrs['crypto-key']}`,
 
-      encryption: `salt=${toBase64UrlSafe(encrypted.salt)}`,
+      encryption: `salt=${base64UrlEncode(encrypted.salt)}`,
 
-      ttl: (message.options?.ttl ?? 60).toString(),
+      ttl: (message.options?.ttl ?? 86400).toString(),
       ...(message.options?.urgency && {
         urgency: message.options.urgency,
       }),

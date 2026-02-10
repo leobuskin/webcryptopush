@@ -130,10 +130,6 @@ importers:
         version: 0.31.9
 
   packages/web-push:
-    dependencies:
-      uint8array-extras:
-        specifier: ^1.5.0
-        version: 1.5.0
     devDependencies:
       '@tsconfig/node22':
         specifier: ^22.0.5
@@ -3026,10 +3022,6 @@ packages:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
     hasBin: true
-
-  uint8array-extras@1.5.0:
-    resolution: {integrity: sha512-rvKSBiC5zqCCiDZ9kAOszZcDvdAHwwIKJG33Ykj43OKcWsnmcBRL09YTU4nOeHZ8Y2a7l1MgTd08SBe9A8Qj6A==}
-    engines: {node: '>=18'}
 
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -6055,8 +6047,6 @@ snapshots:
       reflect.getprototypeof: 1.0.8
 
   typescript@5.9.3: {}
-
-  uint8array-extras@1.5.0: {}
 
   unbox-primitive@1.0.2:
     dependencies:

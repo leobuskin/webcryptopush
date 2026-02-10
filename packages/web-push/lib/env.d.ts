@@ -107,6 +107,13 @@ interface Crypto {
 
 declare var crypto: Crypto;
 
+// Minimal encoding types for encoding.ts
+declare class TextEncoder {
+  encode(input?: string): Uint8Array;
+}
+declare function atob(data: string): string;
+declare function btoa(data: string): string;
+
 // Minimal URL type for vapid.ts
 declare class URL {
   constructor(input: string, base?: string | URL);

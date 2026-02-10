@@ -6,15 +6,15 @@ import { insecureVapid } from './fixtures/vapid.js';
 test('Headers', async () => {
   vi.setSystemTime(new Date(2000, 1, 1, 13));
 
-  const result = await vapidHeaders(subscriptions.chrome, insecureVapid);
+  const headers = await vapidHeaders(subscriptions.chrome, insecureVapid);
 
-  expect(result.headers.authorization).toMatch(/^WebPush /);
-  expect(result.headers['crypto-key']).toBe(
+  expect(headers.authorization).toMatch(/^WebPush /);
+  expect(headers['crypto-key']).toBe(
     `p256ecdsa=${insecureVapid.publicKey}`,
   );
 
   // Verify JWT structure (header.payload.signature)
-  const jwt = result.headers.authorization.replace('WebPush ', '');
+  const jwt = headers.authorization.replace('WebPush ', '');
   const parts = jwt.split('.');
   expect(parts).toHaveLength(3);
 

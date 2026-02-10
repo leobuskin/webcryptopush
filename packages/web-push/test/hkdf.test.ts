@@ -6,5 +6,5 @@ test.each(fixtures.vectors)('hkdf $name', async (vec) => {
   const result = await hkdf(vec.salt, vec.IKM);
   const okm = await result.expand(vec.info, vec.L);
 
-  expect(okm.slice(0, 32)).toEqual(vec.OKM.buffer.slice(0, 32));
+  expect(okm.slice(0, 32)).toEqual(new Uint8Array(vec.OKM).slice(0, 32));
 });

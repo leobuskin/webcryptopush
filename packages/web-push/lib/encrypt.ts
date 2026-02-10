@@ -1,4 +1,3 @@
-import { concatUint8Arrays } from 'uint8array-extras';
 import { deriveClientKeys } from './client-keys.js';
 import { hkdf } from './hkdf.js';
 import { createAuthInfo, createInfo } from './info.js';
@@ -7,7 +6,7 @@ import { ecJwkToBytes } from './jwk-to-bytes.js';
 import { generateLocalKeys } from './local-keys.js';
 import { getSalt } from './salt.js';
 import type { PushSubscription } from './types.js';
-import { arrayChunk, generateNonce, invariant } from './utils.js';
+import { invariant } from './utils.js';
 
 export interface EncryptedNotification {
   ciphertext: Uint8Array;
@@ -62,14 +61,14 @@ export async function encryptNotification(
   const ikm = await ikmHkdf.expand(authInfo, 32);
 
   const messageHkdf = await hkdf(salt, ikm);
-  const [cekBytes, nonceBytes] = await Promise.all([
+  const [cek, nonce] = await Promise.all([
     messageHkdf.expand(cekInfo, 16),
     messageHkdf.expand(nonceInfo, 12),
   ]);
 
-  const cekCryptoKey = await crypto.subtle.importKey(
+  const cekKey = await crypto.subtle.importKey(
     'raw',
-    cekBytes,
+    cek,
     {
       name: 'AES-GCM',
       length: 128,
@@ -78,27 +77,23 @@ export async function encryptNotification(
     ['encrypt'],
   );
 
-  const cipherChunks = await Promise.all(
-    arrayChunk(plaintext, 4095).map(async (chunk, idx) => {
-      // 2-byte big-endian padding length (always 0) followed by the chunk
-      const padded = new Uint8Array(2 + chunk.length);
-      padded.set(chunk, 2);
+  // 2-byte big-endian padding length (always 0) followed by the plaintext
+  const padded = new Uint8Array(2 + plaintext.byteLength);
+  padded.set(plaintext, 2);
 
-      const encrypted = await crypto.subtle.encrypt(
-        {
-          name: 'AES-GCM',
-          iv: generateNonce(new Uint8Array(nonceBytes), idx),
-        },
-        cekCryptoKey,
-        padded,
-      );
-
-      return new Uint8Array(encrypted);
-    }),
+  const ciphertext = new Uint8Array(
+    await crypto.subtle.encrypt(
+      {
+        name: 'AES-GCM',
+        iv: nonce,
+      },
+      cekKey,
+      padded,
+    ),
   );
 
   return {
-    ciphertext: concatUint8Arrays(cipherChunks),
+    ciphertext,
     salt,
     localPublicKeyBytes,
   };

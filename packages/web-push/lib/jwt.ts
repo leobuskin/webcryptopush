@@ -1,5 +1,4 @@
-import { stringToUint8Array } from 'uint8array-extras';
-import { objectToBase64UrlSafe, toBase64UrlSafe } from './base64.js';
+import { base64UrlEncode, jsonToBase64Url, utf8Encode } from './encoding.js';
 import { crypto } from './isomorphic-crypto.js';
 
 const ES256 = {
@@ -40,23 +39,23 @@ type JwtPayload = {
 };
 
 export async function sign(payload: JwtPayload, key: CryptoKey) {
-  const headerStr = objectToBase64UrlSafe<JwtHeader>({
+  const headerStr = jsonToBase64Url({
     typ: 'JWT',
     alg: 'ES256',
-  });
+  } satisfies JwtHeader);
 
-  const payloadStr = objectToBase64UrlSafe<JwtPayload>({
+  const payloadStr = jsonToBase64Url({
     iat: Math.floor(Date.now() / 1000),
     ...payload,
-  });
+  } satisfies JwtPayload);
 
   const dataStr = `${headerStr}.${payloadStr}`;
 
   const signature = await crypto.subtle.sign(
     ES256,
     key,
-    stringToUint8Array(dataStr),
+    utf8Encode(dataStr),
   );
 
-  return `${dataStr}.${toBase64UrlSafe(signature)}`;
+  return `${dataStr}.${base64UrlEncode(new Uint8Array(signature))}`;
 }

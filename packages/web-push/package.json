@@ -1,6 +1,6 @@
 {
   "name": "webcryptopush",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "description": "Send notifications using Web Push Protocol and Web Crypto APIs (works with NodeJS, Cloudflare Workers, Bun and Deno)",
   "keywords": [
@@ -33,10 +33,8 @@
   "scripts": {
     "dev": "vitest",
     "test": "make test",
-    "preversion": "make test"
-  },
-  "dependencies": {
-    "uint8array-extras": "^1.5.0"
+    "preversion": "make test",
+    "prepublishOnly": "make test"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.5",

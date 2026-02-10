@@ -24,6 +24,6 @@ jobs:
 
       - run: pnpm install
 
-      - run: make
+      - run: make test
 
       - run: pnpm --filter webcryptopush publish --provenance --no-git-checks

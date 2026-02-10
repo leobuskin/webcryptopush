@@ -17,7 +17,7 @@ function createHMAC(data: BufferSource) {
   return {
     hash: async (input: BufferSource) => {
       const k = await keyPromise;
-      return crypto.subtle.sign('HMAC', k, input);
+      return new Uint8Array(await crypto.subtle.sign('HMAC', k, input));
     },
   };
 }
@@ -28,15 +28,13 @@ export async function hkdf(salt: BufferSource, ikm: BufferSource) {
     .then((prk) => createHMAC(prk));
 
   return {
-    expand: async (info: BufferSource, len: number) => {
-      const infoBytes =
-        info instanceof Uint8Array ? info : new Uint8Array(info as ArrayBuffer);
-      const input = new Uint8Array(infoBytes.length + 1);
-      input.set(infoBytes);
-      input[infoBytes.length] = 1;
+    expand: async (info: Uint8Array, len: number) => {
+      const input = new Uint8Array(info.length + 1);
+      input.set(info);
+      input[info.length] = 1;
       const prkh = await prkhPromise;
       const hash = await prkh.hash(input);
-      return hash.slice(0, len);
+      return hash.subarray(0, len);
     },
   };
 }

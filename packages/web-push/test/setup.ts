@@ -1,8 +1,8 @@
-import { base64ToUint8Array } from 'uint8array-extras';
+import { base64UrlDecode } from '../lib/encoding.js';
 import { afterEach, beforeEach, vi } from 'vitest';
 
 vi.mock(import('../lib/salt.js'), () => ({
-  getSalt: () => base64ToUint8Array('4CQCKEyyOT_LysC17rsMXQ'),
+  getSalt: () => base64UrlDecode('4CQCKEyyOT_LysC17rsMXQ'),
 }));
 
 vi.mock(import('../lib/local-keys.js'), () => ({

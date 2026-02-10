@@ -1,21 +1,21 @@
-import { concatUint8Arrays, stringToUint8Array } from 'uint8array-extras';
-import { encodeLength } from './utils.js';
+import { concatBytes, utf8Encode } from './encoding.js';
+import { encodeUint16BE } from './utils.js';
 
 export function createInfo(
   clientPublic: Uint8Array,
   serverPublic: Uint8Array,
   type: 'aesgcm' | 'nonce',
 ) {
-  return concatUint8Arrays([
-    stringToUint8Array(`Content-Encoding: ${type}\0`),
-    stringToUint8Array('P-256\0'),
-    encodeLength(clientPublic.byteLength),
+  return concatBytes([
+    utf8Encode(`Content-Encoding: ${type}\0`),
+    utf8Encode('P-256\0'),
+    encodeUint16BE(clientPublic.byteLength),
     clientPublic,
-    encodeLength(serverPublic.byteLength),
+    encodeUint16BE(serverPublic.byteLength),
     serverPublic,
   ]);
 }
 
 export function createAuthInfo() {
-  return stringToUint8Array('Content-Encoding: auth\0');
+  return utf8Encode('Content-Encoding: auth\0');
 }

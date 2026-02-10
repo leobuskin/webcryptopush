@@ -1,18 +1,17 @@
-import { base64ToUint8Array } from 'uint8array-extras';
-import { toBase64UrlSafe } from './base64.js';
+import { base64UrlDecode, base64UrlEncode } from './encoding.js';
 import { crypto } from './isomorphic-crypto.js';
 import type { PushSubscription } from './types.js';
 import { invariant } from './utils.js';
 
 export async function deriveClientKeys(sub: PushSubscription) {
-  const bytes = base64ToUint8Array(sub.keys.p256dh);
+  const bytes = base64UrlDecode(sub.keys.p256dh);
 
   invariant(
     bytes.byteLength === 65,
     `Invalid p256dh key: expected 65 bytes (uncompressed P-256 point), got ${bytes.byteLength}`,
   );
 
-  const authSecretBytes = base64ToUint8Array(sub.keys.auth);
+  const authSecretBytes = base64UrlDecode(sub.keys.auth);
 
   invariant(
     authSecretBytes.byteLength === 16,
@@ -22,8 +21,8 @@ export async function deriveClientKeys(sub: PushSubscription) {
   const publicJwk = {
     kty: 'EC',
     crv: 'P-256',
-    x: toBase64UrlSafe(bytes.slice(1, 33)),
-    y: toBase64UrlSafe(bytes.slice(33, 65)),
+    x: base64UrlEncode(bytes.slice(1, 33)),
+    y: base64UrlEncode(bytes.slice(33, 65)),
     ext: true,
   } satisfies JsonWebKey;
 
