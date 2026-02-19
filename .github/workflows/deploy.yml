@@ -18,9 +18,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           cache: "pnpm"
-          registry-url: "https://registry.npmjs.org"
           node-version-file: ".node-version"
 
       - run: pnpm install
       - run: make test
+      - run: npm install -g npm@latest
       - run: pnpm --filter webcryptopush publish --provenance --no-git-checks
